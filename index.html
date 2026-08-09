@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg-color: #0d1117;
@@ -20,321 +21,47 @@
       --accent-amber: #d29922;
       --btn-hover: #21262d;
     }
-
-    /* Themes */
-    body.theme-1 {
-      --bg-color: #050a05;
-      --card-bg: #0d160d;
-      --border-color: #1a381a;
-      --text-main: #a3f7a3;
-      --text-muted: #4e854e;
-      --accent-green: #00ff66;
-      --accent-blue: #33ff99;
-      --accent-cyan: #66ffcc;
-      --accent-amber: #ccff33;
-      --btn-hover: #142414;
-    }
-
-    body.theme-2 {
-      --bg-color: #0d0221;
-      --card-bg: #190539;
-      --border-color: #431259;
-      --text-main: #00f0ff;
-      --text-muted: #8b52a1;
-      --accent-green: #ff007f;
-      --accent-blue: #7000ff;
-      --accent-cyan: #00f0ff;
-      --accent-amber: #ffe600;
-      --btn-hover: #260852;
-    }
-
-    body.theme-3 {
-      --bg-color: #1e1e2e;
-      --card-bg: #282a36;
-      --border-color: #44475a;
-      --text-main: #f8f8f2;
-      --text-muted: #6272a4;
-      --accent-green: #50fa7b;
-      --accent-blue: #8be9fd;
-      --accent-cyan: #8be9fd;
-      --accent-amber: #ffb86c;
-      --btn-hover: #343746;
-    }
-
-    body.theme-4 {
-      --bg-color: #19181a;
-      --card-bg: #222125;
-      --border-color: #403e41;
-      --text-main: #fcfcfa;
-      --text-muted: #727072;
-      --accent-green: #ffd866;
-      --accent-blue: #a9dc76;
-      --accent-cyan: #78dce8;
-      --accent-amber: #ff6188;
-      --btn-hover: #2d2b30;
-    }
-
-    body.theme-5 {
-      --bg-color: #2e3440;
-      --card-bg: #3b4252;
-      --border-color: #4c566a;
-      --text-main: #eceff4;
-      --text-muted: #d8dee9;
-      --accent-green: #a3be8c;
-      --accent-blue: #88c0d0;
-      --accent-cyan: #81a1c1;
-      --accent-amber: #ebcb8b;
-      --btn-hover: #434c5e;
-    }
-
-    body.theme-6 {
-      --bg-color: #002b36;
-      --card-bg: #073642;
-      --border-color: #586e75;
-      --text-main: #93a1a1;
-      --text-muted: #657b83;
-      --accent-green: #859900;
-      --accent-blue: #268bd2;
-      --accent-cyan: #2aa198;
-      --accent-amber: #b58900;
-      --btn-hover: #0e4654;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Fira Code', monospace;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .terminal {
-      width: 100%;
-      max-width: 580px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .terminal-header {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .window-dots {
-      display: flex;
-      gap: 8px;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    .dot-red { background: #ff5f56; }
-    .dot-yellow { background: #ffbd2e; }
-    .dot-green { background: #27c93f; }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .window-title {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .theme-toggle {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 0.7rem;
-      cursor: pointer;
-    }
-
-    .theme-toggle:hover {
-      color: var(--text-main);
-      border-color: var(--accent-green);
-    }
-
-    .terminal-body {
-      padding: 1.5rem;
-    }
-
-    /* Hand-drawn matching layout */
-    .banner-wrapper {
-      display: inline-block;
-      margin-bottom: 1.5rem;
-    }
-
-    .insta-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 400;
-      line-height: 1;
-      margin-left: 0.15rem;
-      margin-bottom: -0.15rem;
-    }
-
-    .handle-text {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
-    .command-line {
-      margin-bottom: 1.2rem;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .prompt { color: var(--accent-green); }
-    .path { color: var(--accent-blue); }
-
-    .target-box {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px dashed var(--border-color);
-      border-radius: 6px;
-      padding: 0.8rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.85rem;
-    }
-
-    .target-label {
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
-    }
-
-    .target-email {
-      color: var(--accent-amber);
-      font-weight: 700;
-      word-break: break-all;
-    }
-
-    .section-title {
-      font-size: 0.8rem;
-      color: var(--accent-cyan);
-      margin-bottom: 0.8rem;
-      text-transform: uppercase;
-    }
-
-    .options-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 0.8rem 1rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .btn:hover {
-      background: var(--btn-hover);
-      border-color: var(--accent-blue);
-      transform: translateY(-1px);
-    }
-
-    .btn-prefix {
-      color: var(--accent-green);
-      margin-right: 8px;
-    }
-
-    .btn-arrow {
-      color: var(--text-muted);
-    }
-
-    .btn:hover .btn-arrow {
-      color: var(--accent-blue);
-    }
-
-    .sub-options {
-      margin-left: 1rem;
-      border-left: 2px solid var(--border-color);
-      padding-left: 0.8rem;
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--accent-green);
-      color: #000;
-      font-weight: bold;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-      pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    body.theme-1 { --bg-color: #050a05; --card-bg: #0d160d; --border-color: #1a381a; --text-main: #a3f7a3; --text-muted: #4e854e; --accent-green: #00ff66; --accent-blue: #33ff99; --accent-cyan: #66ffcc; --accent-amber: #ccff33; --btn-hover: #142414; }
+    body.theme-2 { --bg-color: #0d0221; --card-bg: #190539; --border-color: #431259; --text-main: #00f0ff; --text-muted: #8b52a1; --accent-green: #ff007f; --accent-blue: #7000ff; --accent-cyan: #00f0ff; --accent-amber: #ffe600; --btn-hover: #260852; }
+    body.theme-3 { --bg-color: #1e1e2e; --card-bg: #282a36; --border-color: #44475a; --text-main: #f8f8f2; --text-muted: #6272a4; --accent-green: #50fa7b; --accent-blue: #8be9fd; --accent-cyan: #8be9fd; --accent-amber: #ffb86c; --btn-hover: #343746; }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fira Code', monospace; }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; transition: all 0.3s ease; }
+    .terminal { width: 100%; max-width: 580px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
+    .terminal-header { background: rgba(0, 0, 0, 0.3); padding: 10px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+    .window-dots { display: flex; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .window-title { font-size: 0.8rem; color: var(--text-muted); }
+    .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; }
+    .terminal-body { padding: 1.5rem; }
+    .banner-wrapper { display: inline-block; margin-bottom: 1.5rem; }
+    .insta-label { font-size: 0.75rem; color: var(--text-muted); }
+    .handle-text { font-size: 1.8rem; font-weight: 700; color: var(--accent-green); }
+    .command-line { margin-bottom: 1.2rem; font-size: 0.9rem; display: flex; gap: 8px; }
+    .prompt { color: var(--accent-green); } .path { color: var(--accent-blue); }
+    .target-box { background: rgba(0, 0, 0, 0.2); border: 1px dashed var(--border-color); border-radius: 6px; padding: 0.8rem; margin-bottom: 1.5rem; font-size: 0.85rem; }
+    .target-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; }
+    .target-email { color: var(--accent-amber); font-weight: 700; word-break: break-all; }
+    .section-title { font-size: 0.8rem; color: var(--accent-cyan); margin-bottom: 0.8rem; text-transform: uppercase; }
+    .options-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+    .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.8rem 1rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; }
+    .btn:hover { background: var(--btn-hover); border-color: var(--accent-blue); }
+    .btn-prefix { color: var(--accent-green); margin-right: 8px; }
+    .btn-arrow { color: var(--text-muted); }
+    .sub-options { margin-left: 1rem; border-left: 2px solid var(--border-color); padding-left: 0.8rem; margin-top: 0.5rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .hidden { display: none; }
+    .input-box { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-family: inherit; margin-bottom: 0.5rem; }
+    #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #000; font-weight: bold; padding: 12px 20px; border-radius: 6px; font-size: 0.85rem; opacity: 0; transition: all 0.3s ease; }
+    #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
   <div class="terminal">
     <div class="terminal-header">
-      <div class="window-dots">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-      </div>
+      <div class="window-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
       <div class="header-right">
         <span class="window-title" id="ist-clock">IST 00:00:00</span>
         <button class="theme-toggle" onclick="cycleTheme()">[THEME]</button>
@@ -342,7 +69,6 @@
     </div>
 
     <div class="terminal-body">
-      <!-- Banner matched to drawing -->
       <div class="banner-wrapper">
         <div class="insta-label">insta</div>
         <div class="handle-text">/@085.11.09</div>
@@ -358,8 +84,10 @@
         <div class="target-email" id="email-address">hsbhati.08@rediffmail.com</div>
       </div>
 
-      <div class="section-title">> Select Target OS Protocol:</div>
+      <div class="section-title">> Dynamic System Links:</div>
+      <div id="dynamic-links" class="options-grid" style="margin-bottom: 1.5rem;"></div>
 
+      <div class="section-title">> Select Target OS Protocol:</div>
       <div class="options-grid">
         <a href="mailto:hsbhati.08@rediffmail.com" class="btn">
           <span><span class="btn-prefix">[01]</span> Mobile / Android User</span>
@@ -395,22 +123,66 @@
           <span class="btn-arrow">&boxbox;</span>
         </button>
       </div>
+
+      <div class="section-title" style="margin-top: 1.5rem;">> Subscribe to Updates:</div>
+      <input type="email" id="sub-email" class="input-box" placeholder="enter_your_email@domain.com">
+      <button class="btn" onclick="subscribeEmail()">
+        <span><span class="btn-prefix">[+]</span> Subscribe to Newsletter</span>
+        <span class="btn-arrow">&boxbox;</span>
+      </button>
     </div>
   </div>
 
-  <div id="toast">[SYSTEM] Email copied to clipboard!</div>
+  <div id="toast">[SYSTEM] Action Completed!</div>
 
   <script>
+    const SUPABASE_URL = "https://kfeleqmrqzupsagyxziu.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWxlcW1ycXp1cHNhZ3l4eml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNTYxNTAsImV4cCI6MjEwMTgzMjE1MH0.KlS561gwKF--Thi6hklnri5knTPF1v0u4aU_25EIils";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadDynamicLinks() {
+      const { data: links } = await supabaseClient.from('site_links').select('*');
+      const container = document.getElementById('dynamic-links');
+      if (links && links.length > 0) {
+        container.innerHTML = links.map(l => `
+          <a href="${l.url}" target="_blank" class="btn" onclick="trackClick('${l.id}', ${l.click_count})">
+            <span><span class="btn-prefix">[LINK]</span> ${l.title}</span>
+            <span class="btn-arrow">&nearr;</span>
+          </a>
+        `).join('');
+      } else {
+        container.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted);">No extra links added yet.</div>';
+      }
+    }
+
+    async function trackClick(id, currentClicks) {
+      await supabaseClient.from('site_links').update({ click_count: currentClicks + 1 }).eq('id', id);
+    }
+
+    async function subscribeEmail() {
+      const emailInput = document.getElementById('sub-email');
+      const email = emailInput.value.trim();
+      if(!email) return showToast("[ERROR] Enter a valid email");
+
+      const { error } = await supabaseClient.from('subscribers').insert([{ email }]);
+      if (error) {
+        showToast("[ERROR] Already subscribed or invalid");
+      } else {
+        showToast("[SUCCESS] Subscribed!");
+        emailInput.value = '';
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
     function updateClock() {
-      const options = {
-        timeZone: 'Asia/Kolkata',
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      };
-      const formatter = new Intl.DateTimeFormat([], options);
-      document.getElementById('ist-clock').innerText = `IST ${formatter.format(new Date())}`;
+      const options = { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      document.getElementById('ist-clock').innerText = `IST ${new Intl.DateTimeFormat([], options).format(new Date())}`;
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -418,41 +190,24 @@
     function toggleWindowsMenu() {
       const winOptions = document.getElementById('windows-options');
       const winArrow = document.getElementById('win-arrow');
-      
-      if (winOptions.classList.contains('hidden')) {
-        winOptions.classList.remove('hidden');
-        winArrow.innerHTML = '&#9650;';
-      } else {
-        winOptions.classList.add('hidden');
-        winArrow.innerHTML = '&#9660;';
-      }
+      winOptions.classList.toggle('hidden');
+      winArrow.innerHTML = winOptions.classList.contains('hidden') ? '&#9660;' : '&#9650;';
     }
 
     let currentThemeIndex = 0;
-    const totalThemes = 7;
-
     function cycleTheme() {
-      if (currentThemeIndex > 0) {
-        document.body.classList.remove(`theme-${currentThemeIndex}`);
-      }
-      
-      currentThemeIndex = (currentThemeIndex + 1) % totalThemes;
-      
-      if (currentThemeIndex > 0) {
-        document.body.classList.add(`theme-${currentThemeIndex}`);
-      }
+      if (currentThemeIndex > 0) document.body.classList.remove(`theme-${currentThemeIndex}`);
+      currentThemeIndex = (currentThemeIndex + 1) % 4;
+      if (currentThemeIndex > 0) document.body.classList.add(`theme-${currentThemeIndex}`);
     }
 
     function copyToClipboard() {
-      const email = document.getElementById('email-address').innerText;
-      navigator.clipboard.writeText(email).then(() => {
-        const toast = document.getElementById('toast');
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-        }, 2500);
+      navigator.clipboard.writeText(document.getElementById('email-address').innerText).then(() => {
+        showToast("[SYSTEM] Email copied to clipboard!");
       });
     }
+
+    loadDynamicLinks();
   </script>
 </body>
 </html>
