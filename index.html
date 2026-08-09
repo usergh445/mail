@@ -8,9 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* Theme Definitions */
     :root {
-      /* Theme 1: Default Dark Slate */
+      /* Theme 0: Dark Slate (Default) */
       --bg-color: #0d1117;
       --card-bg: #161b22;
       --border-color: #30363d;
@@ -23,8 +22,8 @@
       --btn-hover: #21262d;
     }
 
-    body.theme-matrix {
-      /* Theme 2: Matrix Green */
+    /* Theme 1: Matrix Green */
+    body.theme-1 {
       --bg-color: #050a05;
       --card-bg: #0d160d;
       --border-color: #1a381a;
@@ -37,50 +36,50 @@
       --btn-hover: #142414;
     }
 
-    body.theme-dracula {
-      /* Theme 3: Dracula */
-      --bg-color: #282a36;
-      --card-bg: #44475a;
-      --border-color: #6272a4;
+    /* Theme 2: Cyberpunk Neon */
+    body.theme-2 {
+      --bg-color: #0d0221;
+      --card-bg: #190539;
+      --border-color: #431259;
+      --text-main: #00f0ff;
+      --text-muted: #8b52a1;
+      --accent-green: #ff007f;
+      --accent-blue: #7000ff;
+      --accent-cyan: #00f0ff;
+      --accent-amber: #ffe600;
+      --btn-hover: #260852;
+    }
+
+    /* Theme 3: Dracula Purple */
+    body.theme-3 {
+      --bg-color: #1e1e2e;
+      --card-bg: #282a36;
+      --border-color: #44475a;
       --text-main: #f8f8f2;
       --text-muted: #6272a4;
       --accent-green: #50fa7b;
       --accent-blue: #8be9fd;
-      --accent-cyan: #bd93f9;
+      --accent-cyan: #8be9fd;
       --accent-amber: #ffb86c;
       --btn-hover: #343746;
     }
 
-    body.theme-cyberpunk {
-      /* Theme 4: Cyberpunk Neon */
-      --bg-color: #0f051d;
-      --card-bg: #1a0933;
-      --border-color: #ff007f;
-      --text-main: #00f0ff;
-      --text-muted: #7928ca;
-      --accent-green: #00f0ff;
-      --accent-blue: #ff007f;
-      --accent-cyan: #ffe600;
-      --accent-amber: #ff007f;
-      --btn-hover: #290e52;
-    }
-
-    body.theme-monokai {
-      /* Theme 5: Monokai Pro */
-      --bg-color: #2d2a2e;
-      --card-bg: #403e41;
-      --border-color: #5b585c;
+    /* Theme 4: Monokai Pro Amber */
+    body.theme-4 {
+      --bg-color: #19181a;
+      --card-bg: #222125;
+      --border-color: #403e41;
       --text-main: #fcfcfa;
       --text-muted: #727072;
-      --accent-green: #a9dc76;
-      --accent-blue: #78dce8;
-      --accent-cyan: #ab9df2;
-      --accent-amber: #ffd866;
-      --btn-hover: #524f52;
+      --accent-green: #ffd866;
+      --accent-blue: #a9dc76;
+      --accent-cyan: #78dce8;
+      --accent-amber: #ff6188;
+      --btn-hover: #2d2b30;
     }
 
-    body.theme-nord {
-      /* Theme 6: Nord Frost */
+    /* Theme 5: Nord Ice */
+    body.theme-5 {
       --bg-color: #2e3440;
       --card-bg: #3b4252;
       --border-color: #4c566a;
@@ -93,18 +92,18 @@
       --btn-hover: #434c5e;
     }
 
-    body.theme-amber {
-      /* Theme 7: Retro Amber CRT */
-      --bg-color: #120a00;
-      --card-bg: #1f1200;
-      --border-color: #472900;
-      --text-main: #ffb000;
-      --text-muted: #996a00;
-      --accent-green: #ffcc00;
-      --accent-blue: #ffa000;
-      --accent-cyan: #ffe066;
-      --accent-amber: #ff8800;
-      --btn-hover: #2e1b00;
+    /* Theme 6: Solarized Dark */
+    body.theme-6 {
+      --bg-color: #002b36;
+      --card-bg: #073642;
+      --border-color: #586e75;
+      --text-main: #93a1a1;
+      --text-muted: #657b83;
+      --accent-green: #859900;
+      --accent-blue: #268bd2;
+      --accent-cyan: #2aa198;
+      --accent-amber: #b58900;
+      --btn-hover: #0e4654;
     }
 
     * {
@@ -122,7 +121,7 @@
       align-items: center;
       min-height: 100vh;
       padding: 1.5rem;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .terminal {
@@ -133,11 +132,11 @@
       border-radius: 8px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       overflow: hidden;
-      transition: background 0.3s ease, border-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .terminal-header {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       padding: 10px 16px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
@@ -189,28 +188,34 @@
       padding: 1.5rem;
     }
 
-    /* Vertical Banner Design */
-    .banner-wrapper {
+    /* Custom Banner Section with Vertical 'insta' */
+    .banner-container {
       display: flex;
       align-items: center;
-      margin-bottom: 1rem;
       gap: 6px;
-    }
-
-    .banner-text {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent-green);
-      letter-spacing: 0.05em;
+      margin-bottom: 1.2rem;
     }
 
     .vertical-insta {
-      writing-mode: vertical-lr;
+      writing-mode: vertical-rl;
       transform: rotate(180deg);
       font-size: 0.65rem;
       font-weight: 400;
       color: var(--text-muted);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.05em;
+      text-transform: lowercase;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      line-height: 1;
+    }
+
+    .handle-text {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      letter-spacing: -0.03em;
       line-height: 1;
     }
 
@@ -224,23 +229,6 @@
 
     .prompt { color: var(--accent-green); }
     .path { color: var(--accent-blue); }
-
-    .status-line {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--accent-green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--accent-green);
-    }
 
     .target-box {
       background: rgba(0, 0, 0, 0.2);
@@ -364,26 +352,20 @@
       </div>
       <div class="header-right">
         <span class="window-title" id="ist-clock">IST 00:00:00</span>
-        <button class="theme-toggle" onclick="cycleTheme()" id="theme-btn">[THEME: DEFAULT]</button>
+        <button class="theme-toggle" onclick="cycleTheme()">[THEME]</button>
       </div>
     </div>
 
     <div class="terminal-body">
-      <!-- Vertical Custom Banner -->
-      <div class="banner-wrapper">
-        <span class="banner-text">/</span>
-        <span class="vertical-insta">insta</span>
-        <span class="banner-text">@085.11.09</span>
+      <!-- Custom Header Banner -->
+      <div class="banner-container">
+        <div class="vertical-insta">insta</div>
+        <div class="handle-text">/@085.11.09</div>
       </div>
 
       <div class="command-line">
         <span class="prompt">user@dev:~$</span>
         <span class="path">./init_contact.sh</span>
-      </div>
-
-      <div class="status-line">
-        <span class="status-dot"></span>
-        <span>STATUS: ONLINE | READY FOR DISPATCH</span>
       </div>
 
       <div class="target-box">
@@ -439,19 +421,19 @@
 
   <script>
     // Live Indian Standard Time (IST) Clock
-    function updateISTClock() {
+    function updateClock() {
       const options = {
         timeZone: 'Asia/Kolkata',
+        hour12: false,
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+        second: '2-digit'
       };
       const formatter = new Intl.DateTimeFormat([], options);
       document.getElementById('ist-clock').innerText = `IST ${formatter.format(new Date())}`;
     }
-    setInterval(updateISTClock, 1000);
-    updateISTClock();
+    setInterval(updateClock, 1000);
+    updateClock();
 
     // Toggle Windows Submenu
     function toggleWindowsMenu() {
@@ -467,34 +449,22 @@
       }
     }
 
-    // 7 Coder Themes Looper
-    const themes = [
-      { class: '', name: 'SLATE' },
-      { class: 'theme-matrix', name: 'MATRIX' },
-      { class: 'theme-dracula', name: 'DRACULA' },
-      { class: 'theme-cyberpunk', name: 'CYBERPUNK' },
-      { class: 'theme-monokai', name: 'MONOKAI' },
-      { class: 'theme-nord', name: 'NORD' },
-      { class: 'theme-amber', name: 'AMBER CRT' }
-    ];
+    // Theme Looping (7 Developer Themes)
     let currentThemeIndex = 0;
+    const totalThemes = 7;
 
     function cycleTheme() {
-      // Remove current class
-      if (themes[currentThemeIndex].class) {
-        document.body.classList.remove(themes[currentThemeIndex].class);
+      // Remove current theme class if index > 0
+      if (currentThemeIndex > 0) {
+        document.body.classList.remove(`theme-${currentThemeIndex}`);
       }
       
-      // Advance index
-      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      currentThemeIndex = (currentThemeIndex + 1) % totalThemes;
       
-      // Add new class
-      if (themes[currentThemeIndex].class) {
-        document.body.classList.add(themes[currentThemeIndex].class);
+      // Add new theme class if index > 0
+      if (currentThemeIndex > 0) {
+        document.body.classList.add(`theme-${currentThemeIndex}`);
       }
-
-      // Update button label
-      document.getElementById('theme-btn').innerText = `[THEME: ${themes[currentThemeIndex].name}]`;
     }
 
     // Copy to Clipboard Toast
