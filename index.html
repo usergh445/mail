@@ -1,9 +1,296 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=mailto:hsbhati.08@rediffmail.com" />
-  </head>
-  <body>
-    <p>Redirecting... <a href="mailto:hsbhati.08@rediffmail.com">Click here if not redirected</a>.</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>contact_router.sh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: #30363d;
+      --text-main: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent-green: #3fb950;
+      --accent-blue: #58a6ff;
+      --accent-cyan: #39c5cf;
+      --accent-amber: #d29922;
+      --btn-hover: #21262d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Fira Code', monospace;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .terminal {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background: #090d11;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .window-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .terminal-body {
+      padding: 1.5rem;
+    }
+
+    .command-line {
+      margin-bottom: 1.2rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prompt { color: var(--accent-green); }
+    .path { color: var(--accent-blue); }
+
+    .target-box {
+      background: #0d1117;
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .target-label {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .target-email {
+      color: var(--accent-amber);
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .btn:hover {
+      background: var(--btn-hover);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-prefix {
+      color: var(--accent-green);
+      margin-right: 8px;
+    }
+
+    .btn-arrow {
+      color: var(--text-muted);
+    }
+
+    .btn:hover .btn-arrow {
+      color: var(--accent-blue);
+    }
+
+    .sub-options {
+      margin-left: 1rem;
+      border-left: 2px solid var(--border-color);
+      padding-left: 0.8rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent-green);
+      color: #000;
+      font-weight: bold;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="window-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="window-title">bash - route_dispatch.sh</div>
+    </div>
+
+    <div class="terminal-body">
+      <div class="command-line">
+        <span class="prompt">user@dev:~$</span>
+        <span class="path">./init_contact.sh</span>
+      </div>
+
+      <div class="target-box">
+        <div class="target-label">// Target Endpoint</div>
+        <div class="target-email" id="email-address">hsbhati.08@rediffmail.com</div>
+      </div>
+
+      <div class="section-title">> Select Target OS Protocol:</div>
+
+      <div class="options-grid">
+        <!-- Android Option -->
+        <a href="mailto:hsbhati.08@rediffmail.com" class="btn">
+          <span><span class="btn-prefix">[01]</span> Mobile / Android User</span>
+          <span class="btn-arrow">&rarr;</span>
+        </a>
+
+        <!-- Windows Option -->
+        <button class="btn" onclick="toggleWindowsMenu()">
+          <span><span class="btn-prefix">[02]</span> Desktop / Windows User</span>
+          <span class="btn-arrow" id="win-arrow">&#9660;</span>
+        </button>
+
+        <!-- Windows Sub Options -->
+        <div id="windows-options" class="sub-options hidden">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hsbhati.08@rediffmail.com" target="_blank" class="btn">
+            <span><span class="btn-prefix">&boxur;&nbsp;A.</span> Launch Web Gmail</span>
+            <span class="btn-arrow">&nearr;</span>
+          </a>
+          <a href="https://outlook.live.com/mail/0/deeplink/compose?to=hsbhati.08@rediffmail.com" target="_blank" class="btn">
+            <span><span class="btn-prefix">&boxur;&nbsp;B.</span> Launch Web Outlook</span>
+            <span class="btn-arrow">&nearr;</span>
+          </a>
+          <a href="mailto:hsbhati.08@rediffmail.com" class="btn">
+            <span><span class="btn-prefix">&boxur;&nbsp;C.</span> Default Mail App</span>
+            <span class="btn-arrow">&rarr;</span>
+          </a>
+        </div>
+
+        <!-- Copy to Clipboard Option -->
+        <button class="btn" onclick="copyToClipboard()">
+          <span><span class="btn-prefix">[03]</span> None of above (Copy to Clipboard)</span>
+          <span class="btn-arrow">&boxbox;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">[SYSTEM] Email copied to clipboard!</div>
+
+  <script>
+    function toggleWindowsMenu() {
+      const winOptions = document.getElementById('windows-options');
+      const winArrow = document.getElementById('win-arrow');
+      
+      if (winOptions.classList.contains('hidden')) {
+        winOptions.classList.remove('hidden');
+        winArrow.innerHTML = '&#9650;';
+      } else {
+        winOptions.classList.add('hidden');
+        winArrow.innerHTML = '&#9660;';
+      }
+    }
+
+    function copyToClipboard() {
+      const email = document.getElementById('email-address').innerText;
+      navigator.clipboard.writeText(email).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2500);
+      });
+    }
+  </script>
+</body>
 </html>
