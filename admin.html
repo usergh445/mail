@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; padding: 2rem; max-width: 700px; margin: 0 auto; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    h2, h3 { color: #3fb950; margin-bottom: 1rem; }
+    input, textarea { width: 100%; padding: 0.8rem; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; font-family: inherit; margin-bottom: 0.8rem; }
+    button { background: #21262d; border: 1px solid #30363d; color: #3fb950; padding: 0.8rem 1.2rem; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: bold; width: 100%; }
+    button:hover { border-color: #58a6ff; color: #58a6ff; }
+    ul { list-style: none; padding: 0; }
+    li { background: #0d1117; padding: 0.8rem; border: 1px solid #30363d; border-radius: 6px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .del-btn { width: auto; color: #ff5f56; border-color: #ff5f56; padding: 0.3rem 0.6rem; }
+  </style>
+</head>
+<body>
+
+  <div id="login-section" class="card">
+    <h2>[ADMIN LOGIN]</h2>
+    <input type="email" id="login-email" placeholder="Admin Email">
+    <input type="password" id="login-pass" placeholder="Password">
+    <button onclick="login()">Authenticate</button>
+  </div>
+
+  <div id="dashboard-section" class="card" style="display: none;">
+    <h2>[DASHBOARD]</h2>
+    
+    <h3>Add New Site Link</h3>
+    <input type="text" id="new-title" placeholder="Button Title (e.g. My Portfolio)">
+    <input type="url" id="new-url" placeholder="URL (e.g. https://github.com)">
+    <button onclick="addLink()">Publish Link</button>
+
+    <h3 style="margin-top: 1.5rem;">Active Links & Clicks</h3>
+    <ul id="link-list"></ul>
+
+    <h3 style="margin-top: 1.5rem;">Subscribers (<span id="sub-count">0</span>)</h3>
+    <textarea id="sub-list" readonly rows="5" placeholder="Subscribers will appear here..."></textarea>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://kfeleqmrqzupsagyxziu.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWxlcW1ycXp1cHNhZ3l4eml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNTYxNTAsImV4cCI6MjEwMTgzMjE1MH0.KlS561gwKF--Thi6hklnri5knTPF1v0u4aU_25EIils";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-pass').value;
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        alert("Login failed: " + error.message);
+      } else {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('dashboard-section').style.display = 'block';
+        loadAdminData();
+      }
+    }
+
+    async function loadAdminData() {
+      // Fetch Links
+      const { data: links } = await supabaseClient.from('site_links').select('*');
+      const list = document.getElementById('link-list');
+      if (links) {
+        list.innerHTML = links.map(l => `
+          <li>
+            <span><strong>${l.title}</strong> — ${l.click_count} clicks</span>
+            <button class="del-btn" onclick="deleteLink('${l.id}')">Delete</button>
+          </li>
+        `).join('');
+      }
+
+      // Fetch Subscribers
+      const { data: subs } = await supabaseClient.from('subscribers').select('email');
+      if (subs) {
+        document.getElementById('sub-count').innerText = subs.length;
+        document.getElementById('sub-list').value = subs.map(s => s.email).join('\n');
+      }
+    }
+
+    async function addLink() {
+      const title = document.getElementById('new-title').value;
+      const url = document.getElementById('new-url').value;
+      if (!title || !url) return alert("Fill in all fields");
+
+      await supabaseClient.from('site_links').insert([{ title, url }]);
+      document.getElementById('new-title').value = '';
+      document.getElementById('new-url').value = '';
+      loadAdminData();
+    }
+
+    async function deleteLink(id) {
+      await supabaseClient.from('site_links').delete().eq('id', id);
+      loadAdminData();
+    }
+  </script>
+</body>
+</html>
