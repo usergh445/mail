@@ -8,7 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    /* Theme Definitions */
     :root {
+      /* Theme 1: Default Dark Slate */
       --bg-color: #0d1117;
       --card-bg: #161b22;
       --border-color: #30363d;
@@ -21,8 +23,8 @@
       --btn-hover: #21262d;
     }
 
-    /* Matrix Theme Overrides */
-    body.matrix-theme {
+    body.theme-matrix {
+      /* Theme 2: Matrix Green */
       --bg-color: #050a05;
       --card-bg: #0d160d;
       --border-color: #1a381a;
@@ -33,6 +35,76 @@
       --accent-cyan: #66ffcc;
       --accent-amber: #ccff33;
       --btn-hover: #142414;
+    }
+
+    body.theme-dracula {
+      /* Theme 3: Dracula */
+      --bg-color: #282a36;
+      --card-bg: #44475a;
+      --border-color: #6272a4;
+      --text-main: #f8f8f2;
+      --text-muted: #6272a4;
+      --accent-green: #50fa7b;
+      --accent-blue: #8be9fd;
+      --accent-cyan: #bd93f9;
+      --accent-amber: #ffb86c;
+      --btn-hover: #343746;
+    }
+
+    body.theme-cyberpunk {
+      /* Theme 4: Cyberpunk Neon */
+      --bg-color: #0f051d;
+      --card-bg: #1a0933;
+      --border-color: #ff007f;
+      --text-main: #00f0ff;
+      --text-muted: #7928ca;
+      --accent-green: #00f0ff;
+      --accent-blue: #ff007f;
+      --accent-cyan: #ffe600;
+      --accent-amber: #ff007f;
+      --btn-hover: #290e52;
+    }
+
+    body.theme-monokai {
+      /* Theme 5: Monokai Pro */
+      --bg-color: #2d2a2e;
+      --card-bg: #403e41;
+      --border-color: #5b585c;
+      --text-main: #fcfcfa;
+      --text-muted: #727072;
+      --accent-green: #a9dc76;
+      --accent-blue: #78dce8;
+      --accent-cyan: #ab9df2;
+      --accent-amber: #ffd866;
+      --btn-hover: #524f52;
+    }
+
+    body.theme-nord {
+      /* Theme 6: Nord Frost */
+      --bg-color: #2e3440;
+      --card-bg: #3b4252;
+      --border-color: #4c566a;
+      --text-main: #eceff4;
+      --text-muted: #d8dee9;
+      --accent-green: #a3be8c;
+      --accent-blue: #88c0d0;
+      --accent-cyan: #81a1c1;
+      --accent-amber: #ebcb8b;
+      --btn-hover: #434c5e;
+    }
+
+    body.theme-amber {
+      /* Theme 7: Retro Amber CRT */
+      --bg-color: #120a00;
+      --card-bg: #1f1200;
+      --border-color: #472900;
+      --text-main: #ffb000;
+      --text-muted: #996a00;
+      --accent-green: #ffcc00;
+      --accent-blue: #ffa000;
+      --accent-cyan: #ffe066;
+      --accent-amber: #ff8800;
+      --btn-hover: #2e1b00;
     }
 
     * {
@@ -65,7 +137,7 @@
     }
 
     .terminal-header {
-      background: #090d11;
+      background: rgba(0,0,0,0.3);
       padding: 10px 16px;
       border-bottom: 1px solid var(--border-color);
       display: flex;
@@ -117,13 +189,29 @@
       padding: 1.5rem;
     }
 
-    .ascii-banner {
-      font-size: 0.65rem;
-      color: var(--accent-green);
-      white-space: pre;
-      line-height: 1.1;
+    /* Vertical Banner Design */
+    .banner-wrapper {
+      display: flex;
+      align-items: center;
       margin-bottom: 1rem;
-      overflow-x: auto;
+      gap: 6px;
+    }
+
+    .banner-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      letter-spacing: 0.05em;
+    }
+
+    .vertical-insta {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      line-height: 1;
     }
 
     .command-line {
@@ -237,19 +325,6 @@
       gap: 0.5rem;
     }
 
-    .about-box {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 1rem;
-      font-size: 0.8rem;
-      line-height: 1.5;
-      color: var(--text-main);
-      margin-top: 0.5rem;
-      margin-bottom: 0.5rem;
-      margin-left: 1rem;
-    }
-
     .hidden {
       display: none;
     }
@@ -288,18 +363,17 @@
         <div class="dot dot-green"></div>
       </div>
       <div class="header-right">
-        <span class="window-title" id="utc-clock">UTC 00:00:00</span>
-        <button class="theme-toggle" onclick="toggleTheme()">[THEME]</button>
+        <span class="window-title" id="ist-clock">IST 00:00:00</span>
+        <button class="theme-toggle" onclick="cycleTheme()" id="theme-btn">[THEME: DEFAULT]</button>
       </div>
     </div>
 
     <div class="terminal-body">
-      <!-- ASCII Header Banner -->
-      <div class="ascii-banner">
-  _  _ ___ ___  _   _    _  _____ ___ 
- | || / __| _ )/_\ | |_ (_)_|_   _|_ _|
- | __ \__ \ _ / _ \| ' \| |  | |  | | 
- |_||_|___/___/_/ \_\_||_|_|  |_| |___|
+      <!-- Vertical Custom Banner -->
+      <div class="banner-wrapper">
+        <span class="banner-text">/</span>
+        <span class="vertical-insta">insta</span>
+        <span class="banner-text">@085.11.09</span>
       </div>
 
       <div class="command-line">
@@ -352,23 +426,9 @@
           </a>
         </div>
 
-        <!-- About Me Option -->
-        <button class="btn" onclick="toggleAboutMenu()">
-          <span><span class="btn-prefix">[03]</span> cat about_me.txt</span>
-          <span class="btn-arrow" id="about-arrow">&#9660;</span>
-        </button>
-
-        <!-- About Box Content -->
-        <div id="about-content" class="about-box hidden">
-          <p><strong>$ cat about_me.txt</strong></p>
-          <p>---------------------------------</p>
-          <p>Hey! I'm Himmat Singh Bhati.</p>
-          <p>Welcome to my quick contact terminal. Feel free to send an email, reach out for collabs, or copy my contact details.</p>
-        </div>
-
-        <!-- Copy to Clipboard Option -->
+        <!-- Copy to Clipboard Option (At the end) -->
         <button class="btn" onclick="copyToClipboard()">
-          <span><span class="btn-prefix">[04]</span> Copy Email to Clipboard</span>
+          <span><span class="btn-prefix">[03]</span> None of these (copy email to clipboard)</span>
           <span class="btn-arrow">&boxbox;</span>
         </button>
       </div>
@@ -378,16 +438,20 @@
   <div id="toast">[SYSTEM] Email copied to clipboard!</div>
 
   <script>
-    // Live UTC Clock
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getUTCHours()).padStart(2, '0');
-      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('utc-clock').innerText = `UTC ${hours}:${minutes}:${seconds}`;
+    // Live Indian Standard Time (IST) Clock
+    function updateISTClock() {
+      const options = {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      const formatter = new Intl.DateTimeFormat([], options);
+      document.getElementById('ist-clock').innerText = `IST ${formatter.format(new Date())}`;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateISTClock, 1000);
+    updateISTClock();
 
     // Toggle Windows Submenu
     function toggleWindowsMenu() {
@@ -403,23 +467,34 @@
       }
     }
 
-    // Toggle About Me Box
-    function toggleAboutMenu() {
-      const aboutContent = document.getElementById('about-content');
-      const aboutArrow = document.getElementById('about-arrow');
+    // 7 Coder Themes Looper
+    const themes = [
+      { class: '', name: 'SLATE' },
+      { class: 'theme-matrix', name: 'MATRIX' },
+      { class: 'theme-dracula', name: 'DRACULA' },
+      { class: 'theme-cyberpunk', name: 'CYBERPUNK' },
+      { class: 'theme-monokai', name: 'MONOKAI' },
+      { class: 'theme-nord', name: 'NORD' },
+      { class: 'theme-amber', name: 'AMBER CRT' }
+    ];
+    let currentThemeIndex = 0;
 
-      if (aboutContent.classList.contains('hidden')) {
-        aboutContent.classList.remove('hidden');
-        aboutArrow.innerHTML = '&#9650;';
-      } else {
-        aboutContent.classList.add('hidden');
-        aboutArrow.innerHTML = '&#9660;';
+    function cycleTheme() {
+      // Remove current class
+      if (themes[currentThemeIndex].class) {
+        document.body.classList.remove(themes[currentThemeIndex].class);
       }
-    }
+      
+      // Advance index
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      
+      // Add new class
+      if (themes[currentThemeIndex].class) {
+        document.body.classList.add(themes[currentThemeIndex].class);
+      }
 
-    // Toggle Matrix Theme
-    function toggleTheme() {
-      document.body.classList.toggle('matrix-theme');
+      // Update button label
+      document.getElementById('theme-btn').innerText = `[THEME: ${themes[currentThemeIndex].name}]`;
     }
 
     // Copy to Clipboard Toast
