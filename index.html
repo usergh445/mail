@@ -21,6 +21,20 @@
       --btn-hover: #21262d;
     }
 
+    /* Matrix Theme Overrides */
+    body.matrix-theme {
+      --bg-color: #050a05;
+      --card-bg: #0d160d;
+      --border-color: #1a381a;
+      --text-main: #a3f7a3;
+      --text-muted: #4e854e;
+      --accent-green: #00ff66;
+      --accent-blue: #33ff99;
+      --accent-cyan: #66ffcc;
+      --accent-amber: #ccff33;
+      --btn-hover: #142414;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -36,6 +50,7 @@
       align-items: center;
       min-height: 100vh;
       padding: 1.5rem;
+      transition: background-color 0.3s ease;
     }
 
     .terminal {
@@ -46,6 +61,7 @@
       border-radius: 8px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .terminal-header {
@@ -71,13 +87,43 @@
     .dot-yellow { background: #ffbd2e; }
     .dot-green { background: #27c93f; }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .window-title {
       font-size: 0.8rem;
       color: var(--text-muted);
     }
 
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      color: var(--text-main);
+      border-color: var(--accent-green);
+    }
+
     .terminal-body {
       padding: 1.5rem;
+    }
+
+    .ascii-banner {
+      font-size: 0.65rem;
+      color: var(--accent-green);
+      white-space: pre;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      overflow-x: auto;
     }
 
     .command-line {
@@ -91,8 +137,25 @@
     .prompt { color: var(--accent-green); }
     .path { color: var(--accent-blue); }
 
+    .status-line {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
     .target-box {
-      background: #0d1117;
+      background: rgba(0, 0, 0, 0.2);
       border: 1px dashed var(--border-color);
       border-radius: 6px;
       padding: 0.8rem;
@@ -174,6 +237,19 @@
       gap: 0.5rem;
     }
 
+    .about-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 1rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      margin-left: 1rem;
+    }
+
     .hidden {
       display: none;
     }
@@ -211,13 +287,29 @@
         <div class="dot dot-yellow"></div>
         <div class="dot dot-green"></div>
       </div>
-      <div class="window-title">bash - route_dispatch.sh</div>
+      <div class="header-right">
+        <span class="window-title" id="utc-clock">UTC 00:00:00</span>
+        <button class="theme-toggle" onclick="toggleTheme()">[THEME]</button>
+      </div>
     </div>
 
     <div class="terminal-body">
+      <!-- ASCII Header Banner -->
+      <div class="ascii-banner">
+  _  _ ___ ___  _   _    _  _____ ___ 
+ | || / __| _ )/_\ | |_ (_)_|_   _|_ _|
+ | __ \__ \ _ / _ \| ' \| |  | |  | | 
+ |_||_|___/___/_/ \_\_||_|_|  |_| |___|
+      </div>
+
       <div class="command-line">
         <span class="prompt">user@dev:~$</span>
         <span class="path">./init_contact.sh</span>
+      </div>
+
+      <div class="status-line">
+        <span class="status-dot"></span>
+        <span>STATUS: ONLINE | READY FOR DISPATCH</span>
       </div>
 
       <div class="target-box">
@@ -260,9 +352,23 @@
           </a>
         </div>
 
+        <!-- About Me Option -->
+        <button class="btn" onclick="toggleAboutMenu()">
+          <span><span class="btn-prefix">[03]</span> cat about_me.txt</span>
+          <span class="btn-arrow" id="about-arrow">&#9660;</span>
+        </button>
+
+        <!-- About Box Content -->
+        <div id="about-content" class="about-box hidden">
+          <p><strong>$ cat about_me.txt</strong></p>
+          <p>---------------------------------</p>
+          <p>Hey! I'm Himmat Singh Bhati.</p>
+          <p>Welcome to my quick contact terminal. Feel free to send an email, reach out for collabs, or copy my contact details.</p>
+        </div>
+
         <!-- Copy to Clipboard Option -->
         <button class="btn" onclick="copyToClipboard()">
-          <span><span class="btn-prefix">[03]</span> None of above (Copy to Clipboard)</span>
+          <span><span class="btn-prefix">[04]</span> Copy Email to Clipboard</span>
           <span class="btn-arrow">&boxbox;</span>
         </button>
       </div>
@@ -272,6 +378,18 @@
   <div id="toast">[SYSTEM] Email copied to clipboard!</div>
 
   <script>
+    // Live UTC Clock
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('utc-clock').innerText = `UTC ${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Toggle Windows Submenu
     function toggleWindowsMenu() {
       const winOptions = document.getElementById('windows-options');
       const winArrow = document.getElementById('win-arrow');
@@ -285,6 +403,26 @@
       }
     }
 
+    // Toggle About Me Box
+    function toggleAboutMenu() {
+      const aboutContent = document.getElementById('about-content');
+      const aboutArrow = document.getElementById('about-arrow');
+
+      if (aboutContent.classList.contains('hidden')) {
+        aboutContent.classList.remove('hidden');
+        aboutArrow.innerHTML = '&#9650;';
+      } else {
+        aboutContent.classList.add('hidden');
+        aboutArrow.innerHTML = '&#9660;';
+      }
+    }
+
+    // Toggle Matrix Theme
+    function toggleTheme() {
+      document.body.classList.toggle('matrix-theme');
+    }
+
+    // Copy to Clipboard Toast
     function copyToClipboard() {
       const email = document.getElementById('email-address').innerText;
       navigator.clipboard.writeText(email).then(() => {
