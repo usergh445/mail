@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Theme 0: Dark Slate (Default) */
       --bg-color: #0d1117;
       --card-bg: #161b22;
       --border-color: #30363d;
@@ -22,7 +21,7 @@
       --btn-hover: #21262d;
     }
 
-    /* Theme 1: Matrix Green */
+    /* Themes */
     body.theme-1 {
       --bg-color: #050a05;
       --card-bg: #0d160d;
@@ -36,7 +35,6 @@
       --btn-hover: #142414;
     }
 
-    /* Theme 2: Cyberpunk Neon */
     body.theme-2 {
       --bg-color: #0d0221;
       --card-bg: #190539;
@@ -50,7 +48,6 @@
       --btn-hover: #260852;
     }
 
-    /* Theme 3: Dracula Purple */
     body.theme-3 {
       --bg-color: #1e1e2e;
       --card-bg: #282a36;
@@ -64,7 +61,6 @@
       --btn-hover: #343746;
     }
 
-    /* Theme 4: Monokai Pro Amber */
     body.theme-4 {
       --bg-color: #19181a;
       --card-bg: #222125;
@@ -78,7 +74,6 @@
       --btn-hover: #2d2b30;
     }
 
-    /* Theme 5: Nord Ice */
     body.theme-5 {
       --bg-color: #2e3440;
       --card-bg: #3b4252;
@@ -92,7 +87,6 @@
       --btn-hover: #434c5e;
     }
 
-    /* Theme 6: Solarized Dark */
     body.theme-6 {
       --bg-color: #002b36;
       --card-bg: #073642;
@@ -188,35 +182,27 @@
       padding: 1.5rem;
     }
 
-    /* Custom Banner Section with Vertical 'insta' */
-    .banner-container {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 1.2rem;
+    /* Hand-drawn matching layout */
+    .banner-wrapper {
+      display: inline-block;
+      margin-bottom: 1.5rem;
     }
 
-    .vertical-insta {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-size: 0.65rem;
-      font-weight: 400;
+    .insta-label {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      letter-spacing: 0.05em;
-      text-transform: lowercase;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
+      font-weight: 400;
       line-height: 1;
+      margin-left: 0.15rem;
+      margin-bottom: -0.15rem;
     }
 
     .handle-text {
-      font-size: 1.7rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--accent-green);
-      letter-spacing: -0.03em;
       line-height: 1;
+      letter-spacing: -0.02em;
     }
 
     .command-line {
@@ -317,7 +303,6 @@
       display: none;
     }
 
-    /* Toast Notification */
     #toast {
       position: fixed;
       bottom: 20px;
@@ -357,9 +342,9 @@
     </div>
 
     <div class="terminal-body">
-      <!-- Custom Header Banner -->
-      <div class="banner-container">
-        <div class="vertical-insta">insta</div>
+      <!-- Banner matched to drawing -->
+      <div class="banner-wrapper">
+        <div class="insta-label">insta</div>
         <div class="handle-text">/@085.11.09</div>
       </div>
 
@@ -376,19 +361,16 @@
       <div class="section-title">> Select Target OS Protocol:</div>
 
       <div class="options-grid">
-        <!-- Android Option -->
         <a href="mailto:hsbhati.08@rediffmail.com" class="btn">
           <span><span class="btn-prefix">[01]</span> Mobile / Android User</span>
           <span class="btn-arrow">&rarr;</span>
         </a>
 
-        <!-- Windows Option -->
         <button class="btn" onclick="toggleWindowsMenu()">
           <span><span class="btn-prefix">[02]</span> Desktop / Windows User</span>
           <span class="btn-arrow" id="win-arrow">&#9660;</span>
         </button>
 
-        <!-- Windows Sub Options -->
         <div id="windows-options" class="sub-options hidden">
           <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hsbhati.08@rediffmail.com" target="_blank" class="btn">
             <span><span class="btn-prefix">&boxur;&nbsp;A.</span> Launch Web Gmail</span>
@@ -408,7 +390,6 @@
           </a>
         </div>
 
-        <!-- Copy to Clipboard Option (At the end) -->
         <button class="btn" onclick="copyToClipboard()">
           <span><span class="btn-prefix">[03]</span> None of these (copy email to clipboard)</span>
           <span class="btn-arrow">&boxbox;</span>
@@ -420,7 +401,6 @@
   <div id="toast">[SYSTEM] Email copied to clipboard!</div>
 
   <script>
-    // Live Indian Standard Time (IST) Clock
     function updateClock() {
       const options = {
         timeZone: 'Asia/Kolkata',
@@ -435,7 +415,6 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Toggle Windows Submenu
     function toggleWindowsMenu() {
       const winOptions = document.getElementById('windows-options');
       const winArrow = document.getElementById('win-arrow');
@@ -449,25 +428,21 @@
       }
     }
 
-    // Theme Looping (7 Developer Themes)
     let currentThemeIndex = 0;
     const totalThemes = 7;
 
     function cycleTheme() {
-      // Remove current theme class if index > 0
       if (currentThemeIndex > 0) {
         document.body.classList.remove(`theme-${currentThemeIndex}`);
       }
       
       currentThemeIndex = (currentThemeIndex + 1) % totalThemes;
       
-      // Add new theme class if index > 0
       if (currentThemeIndex > 0) {
         document.body.classList.add(`theme-${currentThemeIndex}`);
       }
     }
 
-    // Copy to Clipboard Toast
     function copyToClipboard() {
       const email = document.getElementById('email-address').innerText;
       navigator.clipboard.writeText(email).then(() => {
