@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -147,7 +147,7 @@
       const container = document.getElementById('dynamic-links');
       if (links && links.length > 0) {
         container.innerHTML = links.map(l => `
-          <a href="${l.url}" target="_blank" class="btn" onclick="trackClick('${l.id}', ${l.click_count})">
+          <a href="${l.url}" target="_blank" class="btn" onclick="trackClick('${l.id}')">
             <span><span class="btn-prefix">[LINK]</span> ${l.title}</span>
             <span class="btn-arrow">&nearr;</span>
           </a>
@@ -157,8 +157,9 @@
       }
     }
 
-    async function trackClick(id, currentClicks) {
-      await supabaseClient.from('site_links').update({ click_count: currentClicks + 1 }).eq('id', id);
+    // Securely increment click count using RPC function
+    async function trackClick(id) {
+      await supabaseClient.rpc('increment_click', { link_id: id });
     }
 
     async function subscribeEmail() {
