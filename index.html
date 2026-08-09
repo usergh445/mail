@@ -1,13 +1,18 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Terminal-styled contact router and dynamic link portal." />
   <title>contact_router.sh</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Deferred script loading for faster page render -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  
   <style>
     :root {
       --bg-color: #0d1117;
@@ -62,7 +67,11 @@
 
   <div class="terminal">
     <div class="terminal-header">
-      <div class="window-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+      <div class="window-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
       <div class="header-right">
         <span class="window-title" id="ist-clock">IST 00:00:00</span>
         <button class="theme-toggle" onclick="cycleTheme()">[THEME]</button>
@@ -102,15 +111,15 @@
         </button>
 
         <div id="windows-options" class="sub-options hidden">
-          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hsbhati.08@rediffmail.com" target="_blank" class="btn">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=hsbhati.08@rediffmail.com" target="_blank" rel="noopener noreferrer" class="btn">
             <span><span class="btn-prefix">&boxur;&nbsp;A.</span> Launch Web Gmail</span>
             <span class="btn-arrow">&nearr;</span>
           </a>
-          <a href="https://mail.proton.me/u/0/compose?to=hsbhati.08@rediffmail.com" target="_blank" class="btn">
+          <a href="https://mail.proton.me/u/0/compose?to=hsbhati.08@rediffmail.com" target="_blank" rel="noopener noreferrer" class="btn">
             <span><span class="btn-prefix">&boxur;&nbsp;B.</span> Launch Proton Mail</span>
             <span class="btn-arrow">&nearr;</span>
           </a>
-          <a href="https://mail.rediff.com/" target="_blank" class="btn">
+          <a href="https://mail.rediff.com/" target="_blank" rel="noopener noreferrer" class="btn">
             <span><span class="btn-prefix">&boxur;&nbsp;C.</span> Launch Rediffmail Web</span>
             <span class="btn-arrow">&nearr;</span>
           </a>
@@ -140,14 +149,24 @@
   <script>
     const SUPABASE_URL = "https://kfeleqmrqzupsagyxziu.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWxlcW1ycXp1cHNhZ3l4eml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNTYxNTAsImV4cCI6MjEwMTgzMjE1MH0.KlS561gwKF--Thi6hklnri5knTPF1v0u4aU_25EIils";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabaseClient;
+
+    // Ensure Supabase is loaded before initializing
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        loadDynamicLinks();
+      }
+    });
 
     async function loadDynamicLinks() {
-      const { data: links } = await supabaseClient.from('site_links').select('*');
+      if (!supabaseClient) return;
+      const { data: links, error } = await supabaseClient.from('site_links').select('*');
       const container = document.getElementById('dynamic-links');
+      
       if (links && links.length > 0) {
         container.innerHTML = links.map(l => `
-          <a href="${l.url}" target="_blank" class="btn" onclick="trackClick('${l.id}')">
+          <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="btn" onclick="trackClick('${l.id}')">
             <span><span class="btn-prefix">[LINK]</span> ${l.title}</span>
             <span class="btn-arrow">&nearr;</span>
           </a>
@@ -157,15 +176,20 @@
       }
     }
 
-    // Securely increment click count using RPC function
     async function trackClick(id) {
-      await supabaseClient.rpc('increment_click', { link_id: id });
+      if (!supabaseClient) return;
+      // Fire RPC call asynchronously without blocking navigation
+      supabaseClient.rpc('increment_click', { link_id: id }).catch(console.error);
     }
 
     async function subscribeEmail() {
+      if (!supabaseClient) return;
       const emailInput = document.getElementById('sub-email');
       const email = emailInput.value.trim();
-      if(!email) return showToast("[ERROR] Enter a valid email");
+      
+      if (!email || !email.includes('@')) {
+        return showToast("[ERROR] Enter a valid email address");
+      }
 
       const { error } = await supabaseClient.from('subscribers').insert([{ email }]);
       if (error) {
@@ -193,8 +217,8 @@
     function toggleWindowsMenu() {
       const winOptions = document.getElementById('windows-options');
       const winArrow = document.getElementById('win-arrow');
-      winOptions.classList.toggle('hidden');
-      winArrow.innerHTML = winOptions.classList.contains('hidden') ? '&#9660;' : '&#9650;';
+      const isHidden = winOptions.classList.toggle('hidden');
+      winArrow.textContent = isHidden ? '▼' : '▲';
     }
 
     let currentThemeIndex = 0;
@@ -205,12 +229,17 @@
     }
 
     function copyToClipboard() {
-      navigator.clipboard.writeText(document.getElementById('email-address').innerText).then(() => {
-        showToast("[SYSTEM] Email copied to clipboard!");
-      });
+      const emailText = document.getElementById('email-address').innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(emailText).then(() => {
+          showToast("[SYSTEM] Email copied to clipboard!");
+        }).catch(() => {
+          showToast("[ERROR] Failed to copy");
+        });
+      } else {
+        showToast("[SYSTEM] Copying not supported on HTTP");
+      }
     }
-
-    loadDynamicLinks();
   </script>
 </body>
 </html>
