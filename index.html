@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
   
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <style>
     :root {
@@ -25,6 +25,8 @@
       --accent-amber: #d29922;
       --btn-hover: #21262d;
     }
+
+    /* Themes */
     body.theme-1 { --bg-color: #050a05; --card-bg: #0d160d; --border-color: #1a381a; --text-main: #a3f7a3; --text-muted: #4e854e; --accent-green: #00ff66; --accent-blue: #33ff99; --accent-cyan: #66ffcc; --accent-amber: #ccff33; --btn-hover: #142414; }
     body.theme-2 { --bg-color: #0d0221; --card-bg: #190539; --border-color: #431259; --text-main: #00f0ff; --text-muted: #8b52a1; --accent-green: #ff007f; --accent-blue: #7000ff; --accent-cyan: #00f0ff; --accent-amber: #ffe600; --btn-hover: #260852; }
     body.theme-3 { --bg-color: #1e1e2e; --card-bg: #282a36; --border-color: #44475a; --text-main: #f8f8f2; --text-muted: #6272a4; --accent-green: #50fa7b; --accent-blue: #8be9fd; --accent-cyan: #8be9fd; --accent-amber: #ffb86c; --btn-hover: #343746; }
@@ -32,8 +34,8 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fira Code', monospace; }
     body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; transition: all 0.3s ease; }
     
-    /* Top Ticker Marquee */
-    .ticker-bar { width: 100%; max-width: 580px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; margin-bottom: 1rem; overflow: hidden; white-space: nowrap; font-size: 0.8rem; color: var(--accent-amber); display: none; }
+    /* Top Ticker Marquee Style */
+    .ticker-bar { width: 100%; max-width: 580px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; margin-bottom: 1rem; overflow: hidden; white-space: nowrap; font-size: 0.85rem; color: var(--accent-amber); display: none; }
     .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 15s linear infinite; }
     @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
 
@@ -62,16 +64,15 @@
     .btn-prefix { color: var(--accent-green); margin-right: 8px; }
     .btn-arrow { color: var(--text-muted); }
     .sub-options { margin-left: 1rem; border-left: 2px solid var(--border-color); padding-left: 0.8rem; margin-top: 0.5rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .notice-card { background: rgba(210, 153, 34, 0.1); border: 1px solid var(--accent-amber); color: var(--accent-amber); padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; }
-    .hidden { display: none; }
+    .notice-card { background: rgba(210, 153, 34, 0.1); border: 1px solid var(--accent-amber); color: var(--accent-amber); padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.4; }
+    .hidden { display: none !important; }
     .input-box { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-family: inherit; margin-bottom: 0.5rem; }
-    #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #000; font-weight: bold; padding: 12px 20px; border-radius: 6px; font-size: 0.85rem; opacity: 0; transition: all 0.3s ease; }
+    #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #000; font-weight: bold; padding: 12px 20px; border-radius: 6px; font-size: 0.85rem; opacity: 0; transition: all 0.3s ease; pointer-events: none; }
     #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- Top News Ticker -->
   <div id="ticker-bar" class="ticker-bar">
     <div id="ticker-text" class="ticker-text"></div>
   </div>
@@ -106,10 +107,9 @@
         <div class="target-email" id="email-address">hsbhati.08@rediffmail.com</div>
       </div>
 
-      <!-- Section Title & Dynamic Content Container -->
       <div id="dynamic-section-wrapper" class="hidden">
         <div class="section-title">> Dynamic System Content:</div>
-        <div id="inline-notice-container" style="margin-bottom: 0.6rem;"></div>
+        <div id="inline-notice-container" style="margin-bottom: 0.8rem;"></div>
         <div id="dynamic-links" class="options-grid" style="margin-bottom: 1.5rem;"></div>
       </div>
 
@@ -174,35 +174,49 @@
     });
 
     async function initSiteData() {
-      // Record Visitor
-      supabaseClient.rpc('record_site_visit').catch(console.error);
+      if (!supabaseClient) return;
 
-      // Fetch Notices
-      const { data: settings } = await supabaseClient.from('site_settings').select('*');
+      // 1. Record Visitor Count
+      try {
+        supabaseClient.rpc('record_site_visit').catch(() => {});
+      } catch (e) {}
+
       let noticeText = '';
       let noticePos = 'header';
 
-      if (settings) {
-        const textObj = settings.find(s => s.key === 'notice_text');
-        const posObj = settings.find(s => s.key === 'notice_position');
-        if (textObj) noticeText = textObj.value;
-        if (posObj) noticePos = posObj.value;
+      // 2. Load Notices / Announcements
+      try {
+        const { data: settings } = await supabaseClient.from('site_settings').select('*');
+        if (settings && settings.length > 0) {
+          const textObj = settings.find(s => s.key === 'notice_text');
+          const posObj = settings.find(s => s.key === 'notice_position');
+          if (textObj && textObj.value) noticeText = textObj.value.trim();
+          if (posObj && posObj.value) noticePos = posObj.value.trim();
+        }
+      } catch (e) {
+        console.warn("Could not load settings:", e);
       }
 
-      // Render Header Ticker
+      // Render Top Ticker Marquee if active
       if (noticeText && noticePos === 'header') {
         const tickerBar = document.getElementById('ticker-bar');
         document.getElementById('ticker-text').innerText = `[NOTICE] ${noticeText}`;
         tickerBar.style.display = 'block';
       }
 
-      // Fetch Dynamic Links
-      const { data: links } = await supabaseClient.from('site_links').select('*');
-      
+      // 3. Load Dynamic Links
+      let links = [];
+      try {
+        const { data } = await supabaseClient.from('site_links').select('*');
+        if (data) links = data;
+      } catch (e) {
+        console.warn("Could not load links:", e);
+      }
+
       const hasLinks = links && links.length > 0;
       const hasInlineNotice = noticeText && noticePos === 'inline';
 
-      // Conditionally show/hide Dynamic Section
+      // Show Section ONLY if links or inline notice exist
       if (hasLinks || hasInlineNotice) {
         document.getElementById('dynamic-section-wrapper').classList.remove('hidden');
 
@@ -210,6 +224,8 @@
           document.getElementById('inline-notice-container').innerHTML = `
             <div class="notice-card"><strong>[NOTICE]:</strong> ${noticeText}</div>
           `;
+        } else {
+          document.getElementById('inline-notice-container').innerHTML = '';
         }
 
         if (hasLinks) {
@@ -219,13 +235,17 @@
               <span class="btn-arrow">&nearr;</span>
             </a>
           `).join('');
+        } else {
+          document.getElementById('dynamic-links').innerHTML = '';
         }
+      } else {
+        document.getElementById('dynamic-section-wrapper').classList.add('hidden');
       }
     }
 
     async function trackClick(id) {
       if (!supabaseClient) return;
-      supabaseClient.rpc('increment_click', { link_id: id }).catch(console.error);
+      supabaseClient.rpc('increment_click', { link_id: id }).catch(() => {});
     }
 
     async function subscribeEmail() {
