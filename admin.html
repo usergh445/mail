@@ -36,6 +36,10 @@
     .terminal-body { padding: 1.5rem; }
     .section-title { font-size: 0.8rem; color: var(--accent-cyan); margin-bottom: 0.8rem; text-transform: uppercase; }
     .input-box { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-family: inherit; margin-bottom: 0.8rem; font-size: 0.85rem; }
+    .radio-group { display: flex; gap: 1rem; margin-bottom: 0.8rem; font-size: 0.8rem; color: var(--text-muted); }
+    .radio-group label { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .stat-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center; }
+    .stat-number { font-size: 2rem; color: var(--accent-green); font-weight: bold; }
     .btn { display: flex; align-items: center; justify-content: space-between; width: 100%; background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.8rem 1rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; cursor: pointer; margin-bottom: 0.5rem; }
     .btn:hover { background: var(--btn-hover); border-color: var(--accent-blue); }
     .btn-prefix { color: var(--accent-green); margin-right: 8px; }
@@ -71,6 +75,26 @@
 
       <!-- DASHBOARD SECTION -->
       <div id="dashboard-section" class="hidden">
+        <!-- ANALYTICS -->
+        <div class="section-title">> Analytics & Traffic:</div>
+        <div class="stat-card">
+          <div class="stat-number" id="visitor-count">0</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">TOTAL MAIN SITE VISITS</div>
+        </div>
+
+        <!-- NOTICES -->
+        <div class="section-title">> Global Text Notice / Broadcast:</div>
+        <input type="text" id="notice-text" class="input-box" placeholder="Enter notice text (leave blank to remove)">
+        <div class="radio-group">
+          <span>Position:</span>
+          <label><input type="radio" name="notice_pos" value="header" checked> [01] Top Header Ticker (News Style)</label>
+          <label><input type="radio" name="notice_pos" value="inline"> [02] Dynamic Main Section</label>
+        </div>
+        <button class="btn" onclick="saveNotice()" style="margin-bottom: 1.5rem;">
+          <span><span class="btn-prefix">[!]</span> Update Notice Broadcast</span>
+        </button>
+
+        <!-- LINKS -->
         <div class="section-title">> Add New Dynamic Link:</div>
         <input type="text" id="link-title" class="input-box" placeholder="Link Title (e.g., YouTube Channel)">
         <input type="text" id="link-url" class="input-box" placeholder="Target URL (e.g., https://youtube.com)">
@@ -94,7 +118,6 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWxlcW1ycXp1cHNhZ3l4eml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNTYxNTAsImV4cCI6MjEwMTgzMjE1MH0.KlS561gwKF--Thi6hklnri5knTPF1v0u4aU_25EIils";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Initial Auth Guard Check
     async function checkAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
@@ -138,7 +161,25 @@
     }
 
     async function loadAdminData() {
-      // Load Links
+      // 1. Load Visitor Count
+      const { data: analytics } = await supabaseClient.from('site_analytics').select('total_views').single();
+      if (analytics) {
+        document.getElementById('visitor-count').innerText = analytics.total_views;
+      }
+
+      // 2. Load Notice Settings
+      const { data: settings } = await supabaseClient.from('site_settings').select('*');
+      if (settings) {
+        const textObj = settings.find(s => s.key === 'notice_text');
+        const posObj = settings.find(s => s.key === 'notice_position');
+        if (textObj) document.getElementById('notice-text').value = textObj.value;
+        if (posObj) {
+          const radio = document.querySelector(`input[name="notice_pos"][value="${posObj.value}"]`);
+          if (radio) radio.checked = true;
+        }
+      }
+
+      // 3. Load Links
       const { data: links } = await supabaseClient.from('site_links').select('*').order('created_at', { ascending: false });
       const linksContainer = document.getElementById('admin-links-list');
       if (links && links.length > 0) {
@@ -158,7 +199,7 @@
         linksContainer.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted);">No links configured.</div>';
       }
 
-      // Load Subscribers
+      // 4. Load Subscribers
       const { data: subs } = await supabaseClient.from('subscribers').select('*').order('created_at', { ascending: false });
       const subsContainer = document.getElementById('subscribers-list');
       if (subs && subs.length > 0) {
@@ -173,13 +214,24 @@
       }
     }
 
+    async function saveNotice() {
+      const text = document.getElementById('notice-text').value.trim();
+      const pos = document.querySelector('input[name="notice_pos"]:checked').value;
+
+      await supabaseClient.from('site_settings').upsert([
+        { key: 'notice_text', value: text },
+        { key: 'notice_position', value: pos }
+      ]);
+
+      showToast("[SUCCESS] Notice updated!");
+    }
+
     async function addLink() {
       const title = document.getElementById('link-title').value.trim();
       let url = document.getElementById('link-url').value.trim();
 
       if (!title || !url) return showToast("[ERROR] Enter title and URL");
 
-      // Auto-prefix URL with https:// if user omits protocol
       if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
       }
