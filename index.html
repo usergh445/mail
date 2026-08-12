@@ -10,7 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
   
-  <!-- Deferred script loading for faster page render -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   
   <style>
@@ -31,7 +30,13 @@
     body.theme-3 { --bg-color: #1e1e2e; --card-bg: #282a36; --border-color: #44475a; --text-main: #f8f8f2; --text-muted: #6272a4; --accent-green: #50fa7b; --accent-blue: #8be9fd; --accent-cyan: #8be9fd; --accent-amber: #ffb86c; --btn-hover: #343746; }
     
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fira Code', monospace; }
-    body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; transition: all 0.3s ease; }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 1.5rem; transition: all 0.3s ease; }
+    
+    /* Top Ticker Marquee */
+    .ticker-bar { width: 100%; max-width: 580px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; margin-bottom: 1rem; overflow: hidden; white-space: nowrap; font-size: 0.8rem; color: var(--accent-amber); display: none; }
+    .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 15s linear infinite; }
+    @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
     .terminal { width: 100%; max-width: 580px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
     .terminal-header { background: rgba(0, 0, 0, 0.3); padding: 10px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
     .window-dots { display: flex; gap: 8px; }
@@ -57,6 +62,7 @@
     .btn-prefix { color: var(--accent-green); margin-right: 8px; }
     .btn-arrow { color: var(--text-muted); }
     .sub-options { margin-left: 1rem; border-left: 2px solid var(--border-color); padding-left: 0.8rem; margin-top: 0.5rem; margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .notice-card { background: rgba(210, 153, 34, 0.1); border: 1px solid var(--accent-amber); color: var(--accent-amber); padding: 0.8rem; border-radius: 6px; font-size: 0.85rem; }
     .hidden { display: none; }
     .input-box { width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; font-family: inherit; margin-bottom: 0.5rem; }
     #toast { position: fixed; bottom: 20px; right: 20px; background: var(--accent-green); color: #000; font-weight: bold; padding: 12px 20px; border-radius: 6px; font-size: 0.85rem; opacity: 0; transition: all 0.3s ease; }
@@ -64,6 +70,11 @@
   </style>
 </head>
 <body>
+
+  <!-- Top News Ticker -->
+  <div id="ticker-bar" class="ticker-bar">
+    <div id="ticker-text" class="ticker-text"></div>
+  </div>
 
   <div class="terminal">
     <div class="terminal-header">
@@ -95,8 +106,12 @@
         <div class="target-email" id="email-address">hsbhati.08@rediffmail.com</div>
       </div>
 
-      <div class="section-title">> Dynamic System Links:</div>
-      <div id="dynamic-links" class="options-grid" style="margin-bottom: 1.5rem;"></div>
+      <!-- Section Title & Dynamic Content Container -->
+      <div id="dynamic-section-wrapper" class="hidden">
+        <div class="section-title">> Dynamic System Content:</div>
+        <div id="inline-notice-container" style="margin-bottom: 0.6rem;"></div>
+        <div id="dynamic-links" class="options-grid" style="margin-bottom: 1.5rem;"></div>
+      </div>
 
       <div class="section-title">> Select Target OS Protocol:</div>
       <div class="options-grid">
@@ -151,34 +166,65 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmZWxlcW1ycXp1cHNhZ3l4eml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNTYxNTAsImV4cCI6MjEwMTgzMjE1MH0.KlS561gwKF--Thi6hklnri5knTPF1v0u4aU_25EIils";
     let supabaseClient;
 
-    // Ensure Supabase is loaded before initializing
     document.addEventListener('DOMContentLoaded', () => {
       if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        loadDynamicLinks();
+        initSiteData();
       }
     });
 
-    async function loadDynamicLinks() {
-      if (!supabaseClient) return;
-      const { data: links, error } = await supabaseClient.from('site_links').select('*');
-      const container = document.getElementById('dynamic-links');
+    async function initSiteData() {
+      // Record Visitor
+      supabaseClient.rpc('record_site_visit').catch(console.error);
+
+      // Fetch Notices
+      const { data: settings } = await supabaseClient.from('site_settings').select('*');
+      let noticeText = '';
+      let noticePos = 'header';
+
+      if (settings) {
+        const textObj = settings.find(s => s.key === 'notice_text');
+        const posObj = settings.find(s => s.key === 'notice_position');
+        if (textObj) noticeText = textObj.value;
+        if (posObj) noticePos = posObj.value;
+      }
+
+      // Render Header Ticker
+      if (noticeText && noticePos === 'header') {
+        const tickerBar = document.getElementById('ticker-bar');
+        document.getElementById('ticker-text').innerText = `[NOTICE] ${noticeText}`;
+        tickerBar.style.display = 'block';
+      }
+
+      // Fetch Dynamic Links
+      const { data: links } = await supabaseClient.from('site_links').select('*');
       
-      if (links && links.length > 0) {
-        container.innerHTML = links.map(l => `
-          <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="btn" onclick="trackClick('${l.id}')">
-            <span><span class="btn-prefix">[LINK]</span> ${l.title}</span>
-            <span class="btn-arrow">&nearr;</span>
-          </a>
-        `).join('');
-      } else {
-        container.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted);">No extra links added yet.</div>';
+      const hasLinks = links && links.length > 0;
+      const hasInlineNotice = noticeText && noticePos === 'inline';
+
+      // Conditionally show/hide Dynamic Section
+      if (hasLinks || hasInlineNotice) {
+        document.getElementById('dynamic-section-wrapper').classList.remove('hidden');
+
+        if (hasInlineNotice) {
+          document.getElementById('inline-notice-container').innerHTML = `
+            <div class="notice-card"><strong>[NOTICE]:</strong> ${noticeText}</div>
+          `;
+        }
+
+        if (hasLinks) {
+          document.getElementById('dynamic-links').innerHTML = links.map(l => `
+            <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="btn" onclick="trackClick('${l.id}')">
+              <span><span class="btn-prefix">[LINK]</span> ${l.title}</span>
+              <span class="btn-arrow">&nearr;</span>
+            </a>
+          `).join('');
+        }
       }
     }
 
     async function trackClick(id) {
       if (!supabaseClient) return;
-      // Fire RPC call asynchronously without blocking navigation
       supabaseClient.rpc('increment_click', { link_id: id }).catch(console.error);
     }
 
